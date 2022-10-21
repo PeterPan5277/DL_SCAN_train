@@ -1,0 +1,55 @@
+[33mcommit 70381709bda0f1cd802c63203dc5b35ed5a9ca84[m[33m ([m[1;36mHEAD -> [m[1;32mmaster[m[33m)[m
+Author: peterpan <peterpan5277@yahoo.com>
+Date:   Fri Jun 17 14:18:58 2022 +0800
+
+    Using latest-Pl& adds SCAN-adv model
+
+[33mcommit 001a32838ad596affd415e024d0a015a89f540ce[m[33m ([m[1;31morigin/master[m[33m)[m
+Author: peterpan <peterpan5277@yahoo.com>
+Date:   Mon Jun 13 17:32:05 2022 +0800
+
+    first SCAN train commit
+
+[33mcommit 92022f2fe949e6861520b16ef78c568032c715f7[m
+Author: Chia-Tung <zhangjiadongniub@gmail.com>
+Date:   Fri Apr 29 11:30:13 2022 +0800
+
+    Modify constants.py and dataset.py
+    
+    constants.py: add three days function
+    dataset.py: polish data-split
+    .gitigone: polish
+
+[33mcommit f45e4a8c467fc6c029ee5aae52ce45e43b3843cf[m
+Author: Chia-Tung <zhangjiadongniub@gmail.com>
+Date:   Sun Apr 24 00:02:11 2022 +0800
+
+    add one line comment about detach()
+
+[33mcommit 2e5a380a840dfa06717bfcc185900e796440e49d[m
+Author: Chia-Tung <zhangjiadongniub@gmail.com>
+Date:   Fri Apr 22 23:45:57 2022 +0800
+
+    finish dataset.py, remain constants.py
+
+[33mcommit 6a39023f6bc8ffeee22c15533f8238294e834b2a[m
+Author: Chia-Tung <zhangjiadongniub@gmail.com>
+Date:   Fri Apr 22 16:00:49 2022 +0800
+
+    Modify constants.py, dataset.py, data_loader_all_loaded.py
+    
+    constants.py: add CASES_WE_WANT, revise SKIP_TIME_LIST
+    dataset.py: radar_dict (unfinished)
+    data_loader_all_loaded.py: remove sorted() from self._time
+
+[33mcommit faf8067de056c4ee5d07ed80dd2456ed65e474ec[m
+Author: Chia-Tung <zhangjiadongniub@gmail.com>
+Date:   Thu Apr 21 12:20:14 2022 +0800
+
+    Modify .gitignore on checkpoints directory.
+
+[33mcommit b99e5285544b734fd26dba86180337db8693262b[m
+Author: Chia-Tung <zhangjiadongniub@gmail.com>
+Date:   Thu Apr 21 10:10:57 2022 +0800
+
+    first commit
