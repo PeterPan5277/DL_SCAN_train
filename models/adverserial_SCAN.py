@@ -53,7 +53,7 @@ class Adv_SCAN(LightningModule):
         # self._train_D_stats = DiscriminatorStats()
         self._val_criterion = PerformanceDiagramStable()
         self._D_stats = DiscriminatorStats()
-        print(f'[{self.__class__.__name__} W:{self._adv_w}] Ckp:{os.path.join(self._ckp_dir,self._ckp_prefix)} ')
+        print(f'[{self.__class__.__name__} LOSSTYPE: {self._loss_type}, W:{self._adv_w}] Ckp:{os.path.join(self._ckp_dir,self._ckp_prefix)}')
 
     def adversarial_loss_fn(self, y_hat, y, smoothing=True):
         uniq_y = torch.unique(y)
@@ -74,7 +74,7 @@ class Adv_SCAN(LightningModule):
         #print(target_label.shape) #torch.Size([16, 1, 20, 20])
         predicted_reconstruction=predicted_reconstruction.permute((1,0,2,3))
         if self._loss_type==LossType.Focalloss:
-            recons_loss = self._criterion(predicted_reconstruction, target_label, alpha=0.99, gamma=2,reduction='mean')
+            recons_loss = self._criterion(predicted_reconstruction, target_label, alpha=0.25, gamma=1,reduction='mean')
         else:
             recons_loss = self._criterion(predicted_reconstruction, target_label)
         p_idx=torch.where(target_label==1)#標出1的loc
@@ -84,14 +84,15 @@ class Adv_SCAN(LightningModule):
         self._p_len+= len(predp)
         self._n_len+= len(predn)
         tarp = target_label[p_idx]#答案為1
-        tarn = target_label[n_idx]
-
-        p_loss = nn.BCEWithLogitsLoss()(predp, tarp) 
+        tarn = target_label[n_idx] 
         n_loss = nn.BCEWithLogitsLoss()(predn, tarn)
+     
+        p_loss = nn.BCEWithLogitsLoss()(predp, tarp)
+   
+
         #print('ploss in batch avg:', p_loss.item())
         #print('nloss in batch avg:', n_loss.item())
         #print('total in batch avg:', recons_loss.item())
-        
         #p_loss = self._criterion(predp, tarp, alpha=0.25, gamma=3,reduction='mean')
         #n_loss = self._criterion(predn, tarn, alpha=0.25, gamma=3,reduction='mean')
         #代表最後要總平均輸出一個值，原本輸出16 1 120 120變成1
@@ -106,12 +107,13 @@ class Adv_SCAN(LightningModule):
         #valid = torch.ones(N, 1)
         #valid = valid.type_as(input_data)
 
-        # adversarial loss is binary cross-entropy
+        # adversarial loss is binary cross-entropy；
         # ReLU is used since generator fools discriminator with -ve values
         #adv_loss = self.adversarial_loss_fn(
         #    self.D(nn.ReLU()(predicted_reconstruction)).view(N, 1), valid, smoothing=False)
         #tqdm_dict = {'recon_loss': recons_loss, 'adv_loss': adv_loss}
-        tqdm_dict = {'recon_loss': recons_loss,'Focal+': p_loss, 'Focal-': n_loss, 'l_p':len(predp), 'l_n':len(predn)}
+        tqdm_dict = {'recon_loss': recons_loss,'Focal+': p_loss, 'Focal-': n_loss, 
+        'l_p':len(predp), 'l_n':len(predn)}
         #loss = adv_loss * self._adv_w + recons_loss * (1 - self._adv_w)
         output = OrderedDict({'loss': recons_loss, 'progress_bar': tqdm_dict, 'prediction': predicted_reconstruction})
         return output
@@ -147,12 +149,6 @@ class Adv_SCAN(LightningModule):
         loss_dict = self.generator_loss(train_data, train_label)
         l_p = loss_dict['progress_bar']['l_p']#length 代表120*120*16裡面有幾個+
         l_n = loss_dict['progress_bar']['l_n']#length 同上(有幾個-)
-       
-        #print('P_loss:',loss_dict['progress_bar']['Focal+'].item() * l_p) #.item()是torch tensor->一般純量
-        #print('N_loss:',loss_dict['progress_bar']['Focal-'].item() * l_n)
-        #print('TOTOAL_loss:',loss_dict['progress_bar']['recon_loss'].item() * N*120*120)
-        #print('正樣本所占比例:',(loss_dict['progress_bar']['Focal+'].item() * l_p)/(loss_dict['progress_bar']['recon_loss'].item() * N*120*120)*100,'%')
-
         self._recon_loss.add(loss_dict['progress_bar']['recon_loss'].item() * N, N)
         self._focal_p.add(loss_dict['progress_bar']['Focal+'].item() * N, N)
         self._focal_n.add(loss_dict['progress_bar']['Focal-'].item() * N, N)
@@ -174,7 +170,7 @@ class Adv_SCAN(LightningModule):
 
         return loss_dict['loss']
     def training_epoch_end(self, training_step_outputs):
-        #print('p_case in train:', self._p_len,'n_case in train',self._n_len)
+        #training_step_outputs 為traindata的所有batch
         print(f'負樣本為正樣本的{round(self._n_len/self._p_len,0)}倍')
   
     def validation_step(self, batch, batch_idx):
@@ -197,36 +193,33 @@ class Adv_SCAN(LightningModule):
 
     def validation_epoch_end(self, outputs): #outputs是validation裡面所有step(一個step=一次batch)的outs
         val_loss_sum = 0
-        val_focal_psum=0
-        val_focal_nsum=0
+        val_focal_psum= 0
+        val_focal_nsum= 0
         N = 0
         pl= 0
         nl= 0
         for output in outputs:
             val_loss_sum += output['val_loss'] * output['N']
-            val_focal_psum+= output['val_p_loss'] * output['N']
-            val_focal_nsum+= output['val_n_loss'] * output['N']
+            val_focal_nsum+= output['val_n_loss'] * output['n_len']
+            # print(output['p_len'])
+            # print(output['val_p_loss'])
+            if output['p_len']!=0: #因為有時候p_len='None'
+                val_focal_psum+= output['val_p_loss'] * output['p_len']
+                pl+= output['p_len']
+            else:
+                pass
             # this may not have the entire batch. but we are still multiplying it by N
             N += output['N']
-            pl+= output['p_len']
             nl+= output['n_len']
 
         val_loss_mean = val_loss_sum / N
-        val_focal_pmean = val_focal_psum / N
-        val_focal_nmean = val_focal_nsum / N
+        val_focal_pmean = val_focal_psum / pl
+        val_focal_nmean = val_focal_nsum / nl
         self.logger.experiment.add_scalar('Loss/val', val_loss_mean.item(), self.current_epoch)
         self.log('val_loss', val_loss_mean)
         self.log('val_focal+', val_focal_pmean)
         self.log('val_focal-', val_focal_nmean)
         print('val_focal+',val_focal_pmean, 'val_focal-',val_focal_nmean )
-        #d_stats = self._D_stats.get()
-        #self.log('D_auc', d_stats['auc'])
-        #self.log('D_pos_acc', d_stats['pos_accuracy'])
-        #self.log('D_neg_acc', d_stats['neg_accuracy'])
-
-        #pdsr = self._val_criterion.get()['Dotmetric']
-        #self._val_criterion.reset()
-        #self.log('pdsr', pdsr)
 
     def on_epoch_end(self, *args):
         self._G_loss.reset()
@@ -237,8 +230,6 @@ class Adv_SCAN(LightningModule):
         #self._D_loss.reset()
         #self._train_D_stats.reset()
         #self._D_stats.reset()
-    
-
     def forward(self, input):
         output = self.G(input)
         if self._maxpool_atlast:           

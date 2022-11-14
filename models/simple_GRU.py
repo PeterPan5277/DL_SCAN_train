@@ -105,7 +105,6 @@ class SimpleGRU(BaseConvRNN):
                     reset_gate = torch.sigmoid(h2h_slice[0])
                     update_gate = torch.sigmoid(h2h_slice[1])
                     new_mem = self._act_type(reset_gate * h2h_slice[2])
-                print(reset_gate.shape)
                 next_h = update_gate * prev_h + (1 - update_gate) * new_mem
                 outputs.append(next_h)
                 prev_h = next_h

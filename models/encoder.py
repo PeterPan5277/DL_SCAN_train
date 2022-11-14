@@ -38,5 +38,5 @@ class Encoder(nn.Module):
                                                        getattr(self, 'stage' + str(i)),
                                                        getattr(self, 'rnn' + str(i)),
                                                       )
-            hidden_states.append(state_stage) # 存了三個不同filter_num的[B, filter_num, H', W']
+            hidden_states.append(state_stage) # 存了三個向右傳送進forecaster的input
         return tuple(hidden_states)

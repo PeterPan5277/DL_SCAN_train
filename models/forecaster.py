@@ -32,7 +32,7 @@ class Forecaster(nn.Module):
 
     def forward(self, hidden_states):
         input = self.forward_by_stage(None, hidden_states[-1], getattr(self, 'stage3'), getattr(self, 'rnn3'))
-        for i in list(range(1, self.blocks))[::-1]:
+        for i in list(range(1, self.blocks))[::-1]: #= for i in range (2,0,-1) =(2, 1)
             input = self.forward_by_stage(input, hidden_states[i - 1], getattr(self, 'stage' + str(i)),
                                           getattr(self, 'rnn' + str(i)))
 

@@ -258,7 +258,7 @@ def comb_n_kick(data, remove_all:list, leave_alone:list, test=False, dev=False, 
         # load the missing cases we want
         dt_pkl = list(data['radar'].keys())
         for elimi in remove_all:
-            if (elimi in dt_pkl) & (elimi not in leave_alone):
+            if (elimi in dt_pkl) & (elimi not in leave_alone): #只刪除資料犦掉的那些
                 del data['radar'][elimi]
                 del data['rain'][elimi]
                 del data['scan'][elimi] #new added scan

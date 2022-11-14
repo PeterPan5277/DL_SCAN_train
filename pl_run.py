@@ -4,7 +4,7 @@ import socket, pickle
 from datetime import datetime
 
 os.environ['CUDA_LAUNCH_BLOCKING'] ='1'
-os.environ['CUDA_VISIBLE_DEVICES']="0"
+os.environ['CUDA_VISIBLE_DEVICES']="0" #指定要用哪顆GPU
 os.environ['ROOT_DATA_DIR']='/bk2/handsomedong/DLRA_database/'
 path = os.getcwd()
 path = path.split('/')[:-1] 
@@ -60,7 +60,7 @@ def main(args):
         'SCAN_data' : bool(int(args.data_kwargs.get('SCAN_data', 1))),     #SCAN_data
         'maxpool_atlast' : bool(int(args.data_kwargs.get('maxpool_atlast', 1))),  #maxpool at output or not
         'hetero_data': bool(int(args.data_kwargs.get('hetero_data', 0))),  #ERA5
-        'sampling_rate': int(args.data_kwargs.get('sampling_rate', 5)),
+        'sampling_rate': int(args.data_kwargs.get('sampling_rate', 5)), #在訓練時，每個只取一次
         'prior_dtype': int(args.data_kwargs.get('prior', DataType.NoneAtAll)),
         'random_std': int(args.data_kwargs.get('random_std', 0)),
         'ith_grid': int(args.data_kwargs.get('ith_grid', -1)),
@@ -97,6 +97,9 @@ def main(args):
         data_loader_info=dm.model_related_info,
     )
     #logger = TensorBoardLogger(save_dir='logs', name=ModelType.name(model_kwargs['model_type']))
+    #這是為了能夠從tensorboard觀察訓練過程，在model中可以用self.log()把要觀察的對象放入
+    #若要看$tensorboard --logdir=/wk171/peterpan/logs/...
+    #一次看兩個並命名tensorboard --logdir_spec=name1:./version_143,name2:./version_142
     logger = TestTubeLogger(save_dir='/wk171/peterpan/logs', name=ModelType.name(model_kwargs['model_type']))
     logger.experiment.argparse(args)
     logger.experiment.tag({'input_len': data_kwargs['input_len'], 'target_len': data_kwargs['target_len']})
@@ -115,7 +118,6 @@ def main(args):
 if __name__ == '__main__':
     # python scripts/pl_run.py --train_start=20150101 --train_end=20150131 --val_start=20150201 --val_end=20150331 --gpus=1 --batch_size=2 --loss_kwargs=type:1,kernel:10,aggregation_mode:1 --data_kwargs=sampling_rate:3,hetero_data:0 --precision=16 --model_type=BaselineCNN
     # python pl_run.py --batch_size=32 --data_kwargs=sampling_rate:3,hetero_data:0,target_len:3 --model_kwargs=type:BalancedGRUAdvPONI,teach_force:0.5
-    
     print(socket.gethostname(), datetime.now().strftime("%y-%m-%d-%H:%M:%S"))
     print('Python version', sys.version)
     print('CUDA_HOME', CUDA_HOME)
