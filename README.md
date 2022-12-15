@@ -19,7 +19,8 @@
 
 ## Model structure
 ### This is our DLSCAN model schematic diagram. We utilize CNN layer combined with conv-GRU to form a U-NET structure. Then post-process the result with some tricky method (Interesing details will be in our ongoing paper).
-![](https://i.imgur.com/xD2CcM4.png)
+![image](https://user-images.githubusercontent.com/91505593/207801661-a4d0e4ad-f964-42fd-a6ad-066b2acf3fdb.png)
+
 
 ## Post-processing 
 ### This shows one of our post-processing down-scaling method with Maxpool
