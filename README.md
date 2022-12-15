@@ -14,7 +14,8 @@
 :rocket:
 ## Input data
 ### This is our input data, we use radar CV and convection cell location 1 hour before
-![image](https://user-images.githubusercontent.com/91505593/207800832-a04f61e4-ef12-4372-a599-a302e9ae3692.png)
+![image](https://user-images.githubusercontent.com/91505593/207801510-75654c9c-3e93-4e05-a76b-dfc7a626a7f0.png)
+
 
 ## Model structure
 ### This is our DLSCAN model schematic diagram. We utilize CNN layer combined with conv-GRU to form a U-NET structure. Then post-process the result with some tricky method (Interesing details will be in our ongoing paper).
