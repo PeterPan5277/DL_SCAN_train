@@ -14,7 +14,7 @@
 :rocket:
 ## Input data
 ### This is our input data, we use radar CV and convection cell location 1 hour before
-![]![image](https://user-images.githubusercontent.com/91505593/207800832-a04f61e4-ef12-4372-a599-a302e9ae3692.png)
+![image](https://user-images.githubusercontent.com/91505593/207800832-a04f61e4-ef12-4372-a599-a302e9ae3692.png)
 
 ## Model structure
 ### This is our DLSCAN model schematic diagram. We utilize CNN layer combined with conv-GRU to form a U-NET structure. Then post-process the result with some tricky method (Interesing details will be in our ongoing paper).
@@ -23,5 +23,10 @@
 ## Post-processing 
 ### This shows one of our post-processing down-scaling method with Maxpool
 ![](https://i.imgur.com/8O5U8Vp.png)
+
+## Final prediction 
+### Here we show the final prediction with and without mask
+![image](https://user-images.githubusercontent.com/91505593/207801341-c8000b09-0ca3-40cf-88fc-010a770c0165.png)
+
 
 >Done on 15, Spetember, 2022 [name=peterpan]
