@@ -109,7 +109,8 @@ def checkpoint_file_prefix(start_dt, end_dt, kwargs={}):
 
 
 def checkpoint_parser(fpath):
-    # RF_10101_31231_la-0_lsz-20_lt-0_mt-1_res-1_toff-18_v-0-_epoch=9_val_loss=0.802.ckpt
+    # basename = RF_10101_31231_la-0_lsz-20_lt-0_mt-1_res-1_toff-18_v-0-_epoch=9_val_loss=0.802.ckpt
+    # token = RF_10101_31231_la-0_lsz-20_lt-0_mt-1_res-1_toff-18_v-0-_epoch=9_val_loss=0.802
     basename = os.path.basename(fpath)
     assert basename[-5:] == '.ckpt'
     basename = basename[:-5]
@@ -264,6 +265,9 @@ def get_model(
         if data_kwargs['maxpool_atlast'] is True:####for SCAN
             checkpoint_dict['maxpool_atlast'] = 1
 
+        if data_kwargs['inp_moreSCAN'] is True: ## for SCAN
+            checkpoint_dict['inp_moreSCAN']= 1
+
         if data_kwargs['sampling_rate'] != 5:
             checkpoint_dict['sampl'] = data_kwargs['sampling_rate']
 
@@ -374,7 +378,7 @@ def get_model(
                 checkpoint_dir,
             )
 
-        elif model_type == ModelType.Adv_SCAN:
+        elif model_type == ModelType.Adv_SCAN: ############SCAN
             #assert data_kwargs['data_type'] == DataType.Radar or data_kwargs['data_type'] == DataType.Scan or data_kwargs['data_type'] == DataType.Scan+DataType.Radar
             model = Adv_SCAN(
                 model_kwargs['adv_w'],

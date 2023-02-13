@@ -240,7 +240,7 @@ class Adv_SCAN(LightningModule):
         return ModelCheckpoint(
             dirpath=self._ckp_dir,
             filename=self._ckp_prefix+'_{epoch}_{val_loss:.6f}',
-            save_top_k=1,
+            save_top_k=1, #只存最小的val_loss
             verbose=True,
             monitor='val_loss',
             mode='min')

@@ -26,8 +26,9 @@ class PLDataLoader(LightningDataModule):
         target_offset=0,
         threshold=None,
         hourly_data=False,
-        SCAN_data = False,
-        maxpool_atlast = False,
+        SCAN_data = False, #SCAN
+        maxpool_atlast = False, #SCAN
+        inp_moreSCAN = False, #SCAN
         hetero_data=False,
         residual=False,
         img_size=None,
@@ -57,6 +58,7 @@ class PLDataLoader(LightningDataModule):
         self._hourly_data = hourly_data
         self._SCAN_data = SCAN_data  #SCAN_data
         self._maxpool_atlast = maxpool_atlast #maxpool
+        self._inp_moreSCAN = inp_moreSCAN #INP SCAN加密
         self._hetero_data = hetero_data
         self._residual = residual
         self._prior = prior_dtype
@@ -123,6 +125,7 @@ class PLDataLoader(LightningDataModule):
                 hourly_data=self._hourly_data,
                 SCAN_data = self._SCAN_data, #SCANdata
                 maxpool_atlast = self._maxpool_atlast ,#maxpool last layer
+                inp_moreSCAN = self._inp_moreSCAN, #SCAN在INP就加密
                 hetero_data=self._hetero_data, #ERA5
                 residual=self._residual,
                 img_size=self._img_sz,
@@ -143,6 +146,7 @@ class PLDataLoader(LightningDataModule):
                 hourly_data=self._hourly_data,
                 SCAN_data = self._SCAN_data, #SCANdata
                 maxpool_atlast = self._maxpool_atlast ,#maxpool last layer
+                inp_moreSCAN = self._inp_moreSCAN, #SCAN在INP就加密
                 hetero_data=self._hetero_data, #ERA5
                 residual=self._residual,
                 img_size=self._img_sz,

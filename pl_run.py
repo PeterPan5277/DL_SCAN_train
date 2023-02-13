@@ -33,7 +33,7 @@ def main(args):
     epochs = 10
     workers = 8
     input_shape = (120, 120)
-    loss_type = int(args.loss_kwargs.get('type', LossType.Focalloss))#此處更改loss type!
+    loss_type = int(args.loss_kwargs.get('type', LossType.BCEwithlogits))#此處更改loss type!
     loss_aggregation_mode = int(args.loss_kwargs.get('aggregation_mode', BlockAggregationMode.MAX))
     loss_kernel_size = int(args.loss_kwargs.get('kernel_size', 5))
     residual_loss = bool(int(args.loss_kwargs.get('residual_loss', 0)))
@@ -56,11 +56,12 @@ def main(args):
         'target_offset': int(args.data_kwargs.get('target_offset', 0)),
         'target_len': int(args.data_kwargs.get('target_len', 1)), #SCAN targetlens=1
         'input_len': int(args.data_kwargs.get('input_len', 6)),
-        'hourly_data': bool(int(args.data_kwargs.get('hourly_data', 0))),
+        'hourly_data': bool(int(args.data_kwargs.get('hourly_data', 0))), #######若在此加一些變化，也要在pl_data_loader_module/run_utils/dataloader改############
         'SCAN_data' : bool(int(args.data_kwargs.get('SCAN_data', 1))),     #SCAN_data
         'maxpool_atlast' : bool(int(args.data_kwargs.get('maxpool_atlast', 1))),  #maxpool at output or not
+        'inp_moreSCAN' : bool(int(args.data_kwargs.get('inp_moreSCAN', 1))), #在初始INP就先加密
         'hetero_data': bool(int(args.data_kwargs.get('hetero_data', 0))),  #ERA5
-        'sampling_rate': int(args.data_kwargs.get('sampling_rate', 5)), #在訓練時，每個只取一次
+        'sampling_rate': int(args.data_kwargs.get('sampling_rate', 5)), #在訓練時，每個只取一次#################################
         'prior_dtype': int(args.data_kwargs.get('prior', DataType.NoneAtAll)),
         'random_std': int(args.data_kwargs.get('random_std', 0)),
         'ith_grid': int(args.data_kwargs.get('ith_grid', -1)),
@@ -111,6 +112,7 @@ def main(args):
                                          max_epochs=20, 
                                          fast_dev_run=False,  
                                          logger=logger,
+                                         benchmark= True, #若每次輸入大小皆相同，會較快
                                          callbacks=[checkpoint_callback, early_stopping])
     trainer.fit(model, dm)  #.fit同時做了train and validation
     #default max epochs for pl is 1000

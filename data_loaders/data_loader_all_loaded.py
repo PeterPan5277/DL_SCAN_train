@@ -53,8 +53,9 @@ class DataLoaderAllLoaded(data.Dataset):
                  is_test=False,
                  is_validation=False,
                  hourly_data=False,
-                 SCAN_data= False,
-                 maxpool_atlast = False,
+                 SCAN_data= False, #
+                 maxpool_atlast = False, #
+                 inp_moreSCAN = False, #
                  hetero_data=False,
                  img_size=None,
                  sampling_rate=None,
@@ -94,6 +95,7 @@ class DataLoaderAllLoaded(data.Dataset):
         self._hourly_data = hourly_data
         self._SCAN_data = SCAN_data
         self._maxpool_atlast = maxpool_atlast
+        self._inp_moreSCAN = inp_moreSCAN
         self._hetero_data = hetero_data
         self._set_index_map()
 
@@ -430,14 +432,36 @@ class DataLoaderAllLoaded(data.Dataset):
     #             data[raw_data[1, :].astype(np.int32), raw_data[0, :].astype(np.int32)] = 1
     #     return data
         
-    def scan_data_final(self, raw_data):
+    def scan_data_final(self, raw_data, inp_ornot):
         #已經做一個正確版的 為 y, x
         data = np.zeros((NX, NY), dtype=np.float32)
         raw_data = np.array(raw_data)
-        if (raw_data == None).any():
-            return data
+        if inp_ornot: #僅對inp資料進行加密，若是處理target時，不對原始INP做加密動作以確保比較標準
+            if self._inp_moreSCAN: #事先對於SCAN做加密 注意目前都屬於120*120 (超出範圍的話就pass不理會)
+                if (raw_data == None).any(): #.any()是判斷是否全為空，若是全為0 FALSE等，返回FALSE/ 只要有一個不為0返回True
+                    return data
+                else:
+                    SCAN_numbers = len(raw_data[0, :]) #可以用(raw_data[0, :])或(raw_data[1, :])沒差，反正都是一對一的
+                    for i in range(SCAN_numbers): 
+                        raw_gy =(raw_data[0,i])
+                        raw_gx =(raw_data[1,i])
+                        if raw_gy>118 or raw_gy<1 or raw_gx<1 or raw_gx>118: #真的在邊界外暫時捨棄不做加密動作
+                            data[raw_gy.astype(np.int32), raw_gx.astype(np.int32)] = 1
+                        else: #若不在邊界就做加密動作   
+                            new_gy=np.array([raw_gy-1]*3+[raw_gy]*3+[raw_gy+1]*3)
+                            new_gx=np.array([raw_gx-1,raw_gx,raw_gx+1]*3)
+                            
+                            data[new_gy.astype(np.int32),new_gx.astype(np.int32)]=1
+            else:#不事先對INP進行加密
+                if (raw_data == None).any():
+                    return data
+                else:
+                    data[raw_data[0, :].astype(np.int32), raw_data[1, :].astype(np.int32)] = 1
         else:
-            data[raw_data[0, :].astype(np.int32), raw_data[1, :].astype(np.int32)] = 1
+            if (raw_data == None).any():
+                return data
+            else:
+                data[raw_data[0, :].astype(np.int32), raw_data[1, :].astype(np.int32)] = 1
         return data
 
     def target_0to1(self, pre_target):
@@ -460,7 +484,8 @@ class DataLoaderAllLoaded(data.Dataset):
             for i in range(6):
                 key = self._time[index+i]
                 raw_data = (self._dataset['scan'][key]) #
-                data = self.scan_data_final(raw_data)#              
+                inp_ornot = True
+                data = self.scan_data_final(raw_data, inp_ornot)#              
                 #print(data.shape) #120*120
                 input_scan.append(data)
             input_scan = np.array(input_scan)
@@ -521,7 +546,8 @@ class DataLoaderAllLoaded(data.Dataset):
             for i in range(6,12,1):
                 key = self._time[index+i]
                 raw_data = self._dataset['scan'][key]#原始10分鐘一筆
-                data = self.scan_data_final(raw_data)#              
+                inp_ornot = False
+                data = self.scan_data_final(raw_data, inp_ornot)#              
                 #print(data.shape) #120*120
                 #print(np.where(data==1))
                 target.append(data)
