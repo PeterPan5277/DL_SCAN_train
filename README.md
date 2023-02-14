@@ -1,4 +1,4 @@
-# DL_SCAN_train change
+# DL_SCAN_train test
 # USER GUIDE
 ## :rocket: About this project
 ### This is the project for the Central Weather Bureau (Taiwan) which predicts the initiation of convective cell using Deep learning Model.
