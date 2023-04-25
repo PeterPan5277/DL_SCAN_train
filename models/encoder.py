@@ -20,12 +20,12 @@ class Encoder(nn.Module):
         #print(self.stage1, self.rnn1)
 
     def forward_by_stage(self, input, subnet, rnn):
-        seq_number, batch_size, input_channel, height, width = input.size()
-
+        seq_number, batch_size, input_channel, height, width = input.size()      
         input = torch.reshape(input, (-1, input_channel, height, width))
         input = subnet(input)
         input = torch.reshape(input, (seq_number, batch_size, input.size(1), input.size(2), input.size(3)))
         outputs_stage, state_stage = rnn(input, None, seq_len=seq_number, is_ashesh=self._is_encoder) # encoder都沒有state
+
 
         return outputs_stage, state_stage
 

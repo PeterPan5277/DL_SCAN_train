@@ -14,7 +14,7 @@ def get_encoder_params_GRU(input_channel_count, input_shape):
     x, y = input_shape
     encoder_params = [[
         OrderedDict({
-            'conv1_leaky_1': [input_channel_count, 8, 7, 5, 1]
+            'conv1_leaky_1': [input_channel_count, 8, 7, 5, 1] #(in_channels, out_channels, kernel_size, stride=1, padding=0, dilation=1)
         }),
         OrderedDict({
             'conv2_leaky_1': [32, 128, 5, 3, 1]
